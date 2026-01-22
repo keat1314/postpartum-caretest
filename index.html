@@ -14,34 +14,29 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- 核心配置区 ---
-        // 请将下面的内容替换为您在 Firebase 控制台获取的真实配置
-       const firebaseConfig = {
-          apiKey: "AIzaSyCv8KymzOvoTnPH6y-8vPIrzfmmvg_4KEo",
-          authDomain: "postpartummassage-decc7.firebaseapp.com",
-          projectId: "postpartummassage-decc7",
-          storageBucket: "postpartummassage-decc7.firebasestorage.app",
-          messagingSenderId: "217683596543",
-          appId: "1:217683596543:web:79c23cae80498e5f37e8ca",
-          measurementId: "G-9HD8LQLG9L"
+        // 已为您填入真实的 Firebase 配置并清理了非法字符
+        const firebaseConfig = {
+            apiKey: "AIzaSyCv8KymzOvoTnPH6y-8vPIrzfmmvg_4KEo",
+            authDomain: "postpartummassage-decc7.firebaseapp.com",
+            projectId: "postpartummassage-decc7",
+            storageBucket: "postpartummassage-decc7.firebasestorage.app",
+            messagingSenderId: "217683596543",
+            appId: "1:217683596543:web:79c23cae80498e5f37e8ca",
+            measurementId: "G-9HD8LQLG9L"
         };
 
         // 初始化 Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'xiyue-booking-app';
+        
+        // 这里的 appId 是为了在 Firestore 路径中区分不同的应用实例
+        const appId = "postpartummassage-decc7-web"; 
 
         // 导出到全局供应用逻辑使用
         window.fb = { db, collection, addDoc, serverTimestamp, auth, signInAnonymously, onAuthStateChanged, appId, query, onSnapshot, orderBy, limit };
     </script>
 
-    <!-- Chosen Palette: Warm Rose & Soft Slate -->
-    <!-- Application Structure Plan: 
-         1. 引入 Firebase SDK 实现真实数据持久化。
-         2. 使用 Firestore 存储预约信息。
-         3. 实现匿名身份验证以符合 Firebase 安全规则。
-         4. 实时监听数据库，确保预览流显示的是真实提交的数据。 -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
         body { font-family: 'Noto Sans SC', sans-serif; }
@@ -83,48 +78,12 @@
                 给新手妈妈<br><span class="text-rose-500">最温柔的康复关怀</span>
             </h1>
             <p class="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
-                我们结合现代科学与传统护理经验，为您提供从月子照护到产后修复的全方位服务，助您优雅开启母爱新篇章。
+                我们结合现代科学与传统护理经验，为您提供从月子照护到产后修复的全方位服务。
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <a href="#booking" class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:shadow-xl transition-all">
                     开始预约登记
                 </a>
-                <a href="#services" class="px-8 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all">
-                    了解护理方案
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 服务项目区 -->
-    <section id="services" class="py-20 px-4 bg-white/50">
-        <div class="max-w-6xl mx-auto">
-            <div class="mb-12">
-                <h2 class="text-3xl font-black text-slate-900">我们的专业服务</h2>
-                <p class="text-slate-500 mt-2">针对产后各阶段需求，量身定制方案</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
-                    <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:text-white transition-colors">
-                        <i data-lucide="baby" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">月子精细照护</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">提供24小时全天候母婴护理，包括新生儿洗澡、抚触及产妇生活照料。</p>
-                </div>
-                <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
-                    <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                        <i data-lucide="activity" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">盆底肌修复</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">采用专业物理疗法与运动指导，帮助产后妈妈快速找回身体紧致状态。</p>
-                </div>
-                <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
-                    <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                        <i data-lucide="coffee" class="w-6 h-6"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-4">科学膳食调理</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">高级营养师定制产后营养餐，排、调、补三阶段渐进式调理体质。</p>
-                </div>
             </div>
         </div>
     </section>
@@ -138,12 +97,6 @@
                     <p class="text-slate-400 leading-relaxed mb-8">
                         提交您的联系方式和意向时间，我们将为您安排专业评估。
                     </p>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-3 text-sm">
-                            <i data-lucide="check-circle" class="text-rose-500 w-5 h-5"></i>
-                            <span>预约数据将永久存储在云端</span>
-                        </div>
-                    </div>
                 </div>
                 <div class="mt-12">
                     <p class="text-xs text-slate-500 uppercase tracking-widest font-bold mb-2">咨询热线</p>
@@ -190,10 +143,9 @@
             <div class="bg-white p-6 rounded-2xl shadow-inner max-w-md mx-auto">
                 <p class="text-xs text-slate-400 mb-2 font-bold uppercase">最新云端预约</p>
                 <div id="dataList" class="space-y-2 text-left">
-                    <p class="text-xs text-slate-300 italic text-center">正在加载云端数据...</p>
+                    <p class="text-xs text-slate-300 italic text-center">正在同步云端...</p>
                 </div>
             </div>
-            <p class="text-[10px] text-slate-400 mt-8 uppercase">© 2024 禧月母婴护理中心 · 云端版本</p>
         </div>
     </footer>
 
@@ -202,9 +154,7 @@
 
         async function initApp() {
             if (window.lucide) window.lucide.createIcons();
-
-            // 检查 Firebase 是否已在 script type=module 中注入
-            const checkFB = setInterval(async () => {
+            const checkFB = setInterval(() => {
                 if (window.fb) {
                     clearInterval(checkFB);
                     setupFirebaseLogic();
@@ -213,18 +163,17 @@
         }
 
         async function setupFirebaseLogic() {
-            const { db, collection, addDoc, serverTimestamp, auth, signInAnonymously, onAuthStateChanged, appId, query, onSnapshot, orderBy, limit } = window.fb;
+            const { db, collection, addDoc, serverTimestamp, auth, signInAnonymously, onAuthStateChanged, appId, query, onSnapshot, limit } = window.fb;
 
-            // 1. 匿名登录 (Firebase 要求访问数据库前需有身份)
+            // 1. 匿名登录
             try {
                 await signInAnonymously(auth);
             } catch (e) {
-                console.error("Auth failed", e);
+                console.error("Firebase Auth 失败，请检查是否在控制台开启了匿名登录功能:", e);
             }
 
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    console.log("Logged in as:", user.uid);
                     isFirebaseReady = true;
                     startRealtimeListener();
                 }
@@ -234,21 +183,24 @@
             const successMsg = document.getElementById('successMsg');
             const dataList = document.getElementById('dataList');
 
-            // 2. 提交数据到 Firestore
+            // 2. 提交数据
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!isFirebaseReady) return;
+                if (!isFirebaseReady) {
+                    alert("数据库尚未就绪，请稍等...");
+                    return;
+                }
 
                 const submitBtn = document.getElementById('submitBtn');
                 submitBtn.disabled = true;
-                submitBtn.innerText = "正在同步...";
+                submitBtn.innerText = "提交中...";
 
                 try {
                     const name = document.getElementById('name').value;
                     const phone = document.getElementById('phone').value;
                     const date = document.getElementById('date').value;
 
-                    // 按照 RULE 1 指定集合路径
+                    // 遵循特定路径规则
                     const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
                     
                     await addDoc(colRef, {
@@ -270,35 +222,38 @@
                     }, 5000);
 
                 } catch (err) {
-                    console.error("Error adding document: ", err);
+                    console.error("提交失败:", err);
                     submitBtn.innerText = "提交失败，请重试";
                     submitBtn.disabled = false;
                 }
             });
 
-            // 3. 实时监听 (RULE 2: 简单查询)
+            // 3. 实时监听
             function startRealtimeListener() {
                 const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
-                // 注意：在没有创建索引的情况下，orderBy 可能会报错，
-                // 如果报错，请去掉 orderBy 部分，改为在本地 JS 排序
-                const q = query(colRef, limit(5));
+                const q = query(colRef, limit(10));
 
                 onSnapshot(q, (snapshot) => {
                     const items = [];
                     snapshot.forEach(doc => items.push(doc.data()));
                     
-                    // 本地按时间排序（如果数据库端没排）
-                    items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    // 按创建时间倒序排
+                    items.sort((a, b) => {
+                        const timeA = a.createdAt?.seconds || 0;
+                        const timeB = b.createdAt?.seconds || 0;
+                        return timeB - timeA;
+                    });
 
                     dataList.innerHTML = items.length ? items.slice(0, 3).map(item => `
                         <div class="flex justify-between items-center text-xs py-2 border-b border-slate-50 last:border-none">
-                            <span class="font-bold text-slate-700">${item.name}</span>
-                            <span class="text-slate-400 text-[10px]">${item.bookingDate}</span>
+                            <span class="font-bold text-slate-700">${item.name || '匿名用户'}</span>
+                            <span class="text-slate-400 text-[10px]">${item.bookingDate || ''}</span>
                             <span class="px-2 py-0.5 bg-rose-50 text-rose-500 rounded font-bold">已同步</span>
                         </div>
-                    `).join('') : '<p class="text-xs text-slate-300 text-center">尚无云端预约记录</p>';
+                    `).join('') : '<p class="text-xs text-slate-300 text-center">暂无预约</p>';
                 }, (error) => {
-                    console.error("Listener failed:", error);
+                    console.error("监听失败 (权限不足或集合未创建):", error);
+                    dataList.innerHTML = '<p class="text-xs text-red-400 text-center">连接失败，请检查规则</p>';
                 });
             }
         }
