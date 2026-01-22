@@ -5,19 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>禧月 · 产后护理预约系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 使用更稳定的 lucide 浏览器版 CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- 引入 Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, query, onSnapshot, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCv8KymzOvoTnPH6y-8vPIrzfmmvg_4KEo",
+  authDomain: "postpartummassage-decc7.firebaseapp.com",
+  projectId: "postpartummassage-decc7",
+  storageBucket: "postpartummassage-decc7.firebasestorage.app",
+  messagingSenderId: "217683596543",
+  appId: "1:217683596543:web:79c23cae80498e5f37e8ca",
+  measurementId: "G-9HD8LQLG9L"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+        // 导出到全局供应用逻辑使用
+        window.fb = { db, collection, addDoc, serverTimestamp, auth, signInAnonymously, onAuthStateChanged, appId, query, onSnapshot, orderBy, limit };
+    </script>
+
     <!-- Chosen Palette: Warm Rose & Soft Slate -->
     <!-- Application Structure Plan: 
-         采用单页滚动设计（SPA），分为：
-         1. 导航栏：快速定位。
-         2. Hero区：建立品牌第一印象和信任感。
-         3. 服务板块：明确业务范围，使用卡片式设计。
-         4. 预约系统：核心功能区，包含即时反馈的表单。
-         5. 动态预览：演示数据流向，增加互动性。 -->
-    <!-- Visualization & Content Choices: 
-         - 采用 Lucide 图标增强视觉语义。
-         - 修复说明：更换 CDN 链接，并在 JS 中添加了循环检测机制，确保 lucide 变量定义后再执行。 -->
+         1. 引入 Firebase SDK 实现真实数据持久化。
+         2. 使用 Firestore 存储预约信息。
+         3. 实现匿名身份验证以符合 Firebase 安全规则。
+         4. 实时监听数据库，确保预览流显示的是真实提交的数据。 -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
@@ -81,7 +108,6 @@
                 <p class="text-slate-500 mt-2">针对产后各阶段需求，量身定制方案</p>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
-                <!-- 服务卡片 1 -->
                 <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                     <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:text-white transition-colors">
                         <i data-lucide="baby" class="w-6 h-6"></i>
@@ -89,7 +115,6 @@
                     <h3 class="text-xl font-bold mb-4">月子精细照护</h3>
                     <p class="text-slate-500 text-sm leading-relaxed">提供24小时全天候母婴护理，包括新生儿洗澡、抚触及产妇生活照料。</p>
                 </div>
-                <!-- 服务卡片 2 -->
                 <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                     <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                         <i data-lucide="activity" class="w-6 h-6"></i>
@@ -97,7 +122,6 @@
                     <h3 class="text-xl font-bold mb-4">盆底肌修复</h3>
                     <p class="text-slate-500 text-sm leading-relaxed">采用专业物理疗法与运动指导，帮助产后妈妈快速找回身体紧致状态。</p>
                 </div>
-                <!-- 服务卡片 3 -->
                 <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
                     <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                         <i data-lucide="coffee" class="w-6 h-6"></i>
@@ -116,16 +140,12 @@
                 <div>
                     <h2 class="text-3xl font-black mb-6">在线预约登记</h2>
                     <p class="text-slate-400 leading-relaxed mb-8">
-                        提交您的联系方式和意向时间，我们的顾问会在2小时内致电为您安排专业评估。
+                        提交您的联系方式和意向时间，我们将为您安排专业评估。
                     </p>
                     <div class="space-y-4">
                         <div class="flex items-center gap-3 text-sm">
                             <i data-lucide="check-circle" class="text-rose-500 w-5 h-5"></i>
-                            <span>免费到店体验专业护理</span>
-                        </div>
-                        <div class="flex items-center gap-3 text-sm">
-                            <i data-lucide="check-circle" class="text-rose-500 w-5 h-5"></i>
-                            <span>资深顾问1对1深度沟通</span>
+                            <span>预约数据将永久存储在云端</span>
                         </div>
                     </div>
                 </div>
@@ -139,26 +159,26 @@
                 <form id="bookingForm" class="space-y-5">
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400 uppercase">您的姓名</label>
-                        <input type="text" id="name" required placeholder="请填写姓名" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="text" id="name" required placeholder="请填写姓名" class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400 uppercase">联系电话</label>
-                        <input type="tel" id="phone" required placeholder="请输入手机号" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="tel" id="phone" required placeholder="请输入手机号" class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-slate-400 uppercase">预约日期</label>
-                        <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="date" id="date" required class="w-full px-4 py-3 bg-slate-50 rounded-xl outline-none">
                     </div>
                     <div class="pt-4">
-                        <button type="submit" class="w-full py-4 bg-rose-500 text-white rounded-xl font-bold text-lg hover:bg-rose-600 shadow-lg shadow-rose-100 active:scale-95 transition-all">
+                        <button type="submit" id="submitBtn" class="w-full py-4 bg-rose-500 text-white rounded-xl font-bold text-lg hover:bg-rose-600 shadow-lg shadow-rose-100 transition-all">
                             确认预约
                         </button>
                     </div>
                 </form>
-                <div id="successMsg" class="hidden py-12 text-center animate-pulse">
+                <div id="successMsg" class="hidden py-12 text-center">
                     <i data-lucide="check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4"></i>
-                    <h3 class="text-xl font-bold">提交成功!</h3>
-                    <p class="text-slate-400 text-sm mt-2">稍后请留意我们的致电</p>
+                    <h3 class="text-xl font-bold">已同步至云端!</h3>
+                    <p class="text-slate-400 text-sm mt-2">感谢您的信赖</p>
                 </div>
             </div>
         </div>
@@ -169,44 +189,78 @@
         <div class="max-w-6xl mx-auto text-center space-y-4">
             <div class="flex justify-center gap-2">
                 <div class="w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">测试管理端数据已开启</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">已链接 FIREBASE 实时数据库</span>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-inner max-w-md mx-auto">
-                <p class="text-xs text-slate-400 mb-2 font-bold uppercase">实时预约流</p>
-                <div id="dataList" class="space-y-2">
-                    <p class="text-xs text-slate-300 italic">暂无最新预约...</p>
+                <p class="text-xs text-slate-400 mb-2 font-bold uppercase">最新云端预约</p>
+                <div id="dataList" class="space-y-2 text-left">
+                    <p class="text-xs text-slate-300 italic text-center">正在加载云端数据...</p>
                 </div>
             </div>
-            <p class="text-[10px] text-slate-400 mt-8 uppercase">© 2024 禧月母婴护理中心 · 仅供测试使用</p>
+            <p class="text-[10px] text-slate-400 mt-8 uppercase">© 2024 禧月母婴护理中心 · 云端版本</p>
         </div>
     </footer>
 
     <script>
-        // 核心初始化逻辑
-        function initApp() {
-            // 初始化图标：增加对 lucide 全局对象的防御性检查
-            if (window.lucide) {
-                window.lucide.createIcons();
+        let isFirebaseReady = false;
+
+        async function initApp() {
+            if (window.lucide) window.lucide.createIcons();
+
+            // 检查 Firebase 是否已在 script type=module 中注入
+            const checkFB = setInterval(async () => {
+                if (window.fb) {
+                    clearInterval(checkFB);
+                    setupFirebaseLogic();
+                }
+            }, 100);
+        }
+
+        async function setupFirebaseLogic() {
+            const { db, collection, addDoc, serverTimestamp, auth, signInAnonymously, onAuthStateChanged, appId, query, onSnapshot, orderBy, limit } = window.fb;
+
+            // 1. 匿名登录 (Firebase 要求访问数据库前需有身份)
+            try {
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Auth failed", e);
             }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log("Logged in as:", user.uid);
+                    isFirebaseReady = true;
+                    startRealtimeListener();
+                }
+            });
 
             const form = document.getElementById('bookingForm');
             const successMsg = document.getElementById('successMsg');
             const dataList = document.getElementById('dataList');
 
-            let mockData = [];
+            // 2. 提交数据到 Firestore
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!isFirebaseReady) return;
 
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerText = "正在同步...";
+
+                try {
                     const name = document.getElementById('name').value;
                     const phone = document.getElementById('phone').value;
                     const date = document.getElementById('date').value;
 
-                    const newEntry = { name, phone, date, time: new Date().toLocaleTimeString() };
-                    mockData.unshift(newEntry);
+                    // 按照 RULE 1 指定集合路径
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
                     
-                    updateDashboard();
+                    await addDoc(colRef, {
+                        name,
+                        phone,
+                        bookingDate: date,
+                        createdAt: serverTimestamp()
+                    });
 
                     form.classList.add('hidden');
                     successMsg.classList.remove('hidden');
@@ -215,37 +269,45 @@
                         form.reset();
                         form.classList.remove('hidden');
                         successMsg.classList.add('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "确认预约";
                     }, 5000);
+
+                } catch (err) {
+                    console.error("Error adding document: ", err);
+                    submitBtn.innerText = "提交失败，请重试";
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // 3. 实时监听 (RULE 2: 简单查询)
+            function startRealtimeListener() {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
+                // 注意：在没有创建索引的情况下，orderBy 可能会报错，
+                // 如果报错，请去掉 orderBy 部分，改为在本地 JS 排序
+                const q = query(colRef, limit(5));
+
+                onSnapshot(q, (snapshot) => {
+                    const items = [];
+                    snapshot.forEach(doc => items.push(doc.data()));
+                    
+                    // 本地按时间排序（如果数据库端没排）
+                    items.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                    dataList.innerHTML = items.length ? items.slice(0, 3).map(item => `
+                        <div class="flex justify-between items-center text-xs py-2 border-b border-slate-50 last:border-none">
+                            <span class="font-bold text-slate-700">${item.name}</span>
+                            <span class="text-slate-400 text-[10px]">${item.bookingDate}</span>
+                            <span class="px-2 py-0.5 bg-rose-50 text-rose-500 rounded font-bold">已同步</span>
+                        </div>
+                    `).join('') : '<p class="text-xs text-slate-300 text-center">尚无云端预约记录</p>';
+                }, (error) => {
+                    console.error("Listener failed:", error);
                 });
             }
-
-            function updateDashboard() {
-                if (!dataList) return;
-                dataList.innerHTML = mockData.slice(0, 3).map(item => `
-                    <div class="flex justify-between items-center text-xs py-2 border-b border-slate-50 last:border-none">
-                        <span class="font-bold text-slate-700">${item.name}</span>
-                        <span class="text-slate-400">${item.date}</span>
-                        <span class="px-2 py-0.5 bg-rose-50 text-rose-500 rounded font-bold">${item.time}</span>
-                    </div>
-                `).join('');
-            }
         }
 
-        // 处理 Lucide 加载异常的机制
-        function checkLucideAndInit(retries = 0) {
-            if (window.lucide) {
-                initApp();
-            } else if (retries < 20) { // 最多尝试约 2 秒钟
-                setTimeout(() => checkLucideAndInit(retries + 1), 100);
-            } else {
-                console.error('Lucide library failed to load after multiple attempts.');
-                // 即使图标没加载，也要运行应用逻辑
-                initApp();
-            }
-        }
-
-        // 在 DOMContentLoaded 后立即尝试，或等待 window 加载
-        document.addEventListener('DOMContentLoaded', () => checkLucideAndInit());
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
